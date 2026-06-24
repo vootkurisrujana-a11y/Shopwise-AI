@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-history" style="color: var(--secondary);"></i> AI Search History
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Review your past conversational shopping requests and run them again.</p>
+
+    {% if queries|length == 0 %}
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-ghost" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+            <h3>No Search History</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 1.5rem;">Try asking the AI Assistant for recommendations on the home page.</p>
+            <a href="{{ url_for('index') }}" class="btn-nav-action" style="padding: 0.75rem 1.5rem; display: inline-block;">Go to Assistant</a>
+        </div>
+    {% else %}
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for item in queries %}
+                <div class="glass-panel" style="padding: 1.25rem; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; gap: 2rem; background: rgba(255,255,255,0.01);">
+                    <div>
+                        <div style="font-weight: 600; font-size: 1.05rem; color: white;">
+                            "{{ item.query }}"
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                            Searched on {{ item.timestamp }}
+                        </div>
+                    </div>
+                    <button class="btn-card primary" style="white-space: nowrap; width: auto; padding: 0.5rem 1.25rem;" onclick="reRunQuery('{{ item.query|replace("'", "\\'") }}')">
+                        <i class="fas fa-redo"></i> Ask Again
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function reRunQuery(queryText) {
+        // Redirect to homepage with query param
+        window.location.href = `/?query=${encodeURIComponent(queryText)}`;
+    }
+</script>
+{% endblock %}

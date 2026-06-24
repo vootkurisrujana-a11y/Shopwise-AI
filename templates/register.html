@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel auth-container">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <i class="fas fa-user-plus" style="font-size: 2.5rem; background: var(--secondary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+        <h2 style="margin-top: 0.75rem;">Create Account</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Unlock the AI shopping assistant query history and deal monitors.</p>
+    </div>
+
+    {% if error %}
+        <div class="error-message-box">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+    {% endif %}
+
+    <form action="{{ url_for('register') }}" method="POST">
+        <div class="form-group">
+            <label for="username">Choose Username</label>
+            <input type="text" id="username" name="username" placeholder="e.g. buyer_jack" required autocomplete="username">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Choose Password</label>
+            <input type="password" id="password" name="password" placeholder="At least 6 characters" minlength="6" required autocomplete="new-password">
+        </div>
+        
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn-form">Register & Login</button>
+    </form>
+
+    <div class="form-footer-text">
+        Already have an account? <a href="{{ url_for('login') }}">Sign in here</a>
+    </div>
+</div>
+{% endblock %}

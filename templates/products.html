@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem;">
+
+    <!-- Sidebar Filters Box -->
+    <div class="glass-panel" style="height: fit-content; padding: 1.5rem;">
+        <h3 style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-filter" style="color: var(--secondary);"></i> Filters
+        </h3>
+        
+        <form action="{{ url_for('products') }}" method="GET">
+            <!-- Text Search -->
+            <div class="form-group">
+                <label for="search">Keywords</label>
+                <input type="text" id="search" name="search" placeholder="Search name or spec..." value="{{ search }}">
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="laptop" {% if category == 'laptop' %}selected{% endif %}>Laptops</option>
+                    <option value="phone" {% if category == 'phone' %}selected{% endif %}>Phones</option>
+                    <option value="headphone" {% if category == 'headphone' %}selected{% endif %}>Headphones</option>
+                    <option value="camera" {% if category == 'camera' %}selected{% endif %}>Cameras</option>
+                    <option value="smartwatch" {% if category == 'smartwatch' %}selected{% endif %}>Smartwatches</option>
+                </select>
+            </div>
+            
+            <!-- Max Price Filter -->
+            <div class="form-group">
+                <label for="max_price">Maximum Budget (₹)</label>
+                <input type="number" id="max_price" name="max_price" placeholder="e.g. 50000" value="{{ max_price }}">
+            </div>
+            
+            <!-- Min Rating Filter -->
+            <div class="form-group">
+                <label for="min_rating">Minimum Rating</label>
+                <select id="min_rating" name="min_rating">
+                    <option value="">Any Rating</option>
+                    <option value="4.5" {% if min_rating == '4.5' %}selected{% endif %}>4.5★ & Up</option>
+                    <option value="4.0" {% if min_rating == '4.0' %}selected{% endif %}>4.0★ & Up</option>
+                    <option value="3.5" {% if min_rating == '3.5' %}selected{% endif %}>3.5★ & Up</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-form">Apply Filters</button>
+            
+            {% if search or category or max_price or min_rating %}
+                <a href="{{ url_for('products') }}" class="btn-card outline" style="display: block; text-align: center; margin-top: 0.75rem; padding: 0.75rem;">Clear All</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Product Grid Listing -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Product Catalog ({{ products|length }} items)</h2>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                Select checkboxes on cards to compare items side-by-side.
+            </div>
+        </div>
+
+        {% if products|length == 0 %}
+            <div class="glass-panel" style="text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+                <h3>No Products Found</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Try relaxing your filter parameters or search keywords.</p>
+            </div>
+        {% else %}
+            <div class="product-card-grid">
+                {% for item in products %}
+                    <div class="product-card">
+                        <div class="card-img-wrapper">
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+                            <div class="wishlist-heart-btn {% if item.is_wishlisted %}active{% endif %}" data-id="{{ item.id }}">
+                                <i class="{% if item.is_wishlisted %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-meta-row">
+                                <span class="product-cat-tag">{{ item.category }}</span>
+                                <span class="rating-badge"><i class="fas fa-star"></i> {{ item.rating }}</span>
+                            </div>
+                            <h3 class="product-title" title="{{ item.name }}">{{ item.name }}</h3>
+                            <p class="product-desc">{{ item.description }}</p>
+                            <div class="product-price">₹{{ "{:,.2f}".format(item.price) }}</div>
+                            
+                            <div class="card-actions">
+                                <a href="{{ url_for('product_detail', product_id=item.id) }}" class="btn-card primary">View Details</a>
+                                <label class="compare-checkbox-label">
+                                    <input type="checkbox" class="compare-checkbox" data-id="{{ item.id }}" data-name="{{ item.name }}">
+                                    <span>Add to Compare</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

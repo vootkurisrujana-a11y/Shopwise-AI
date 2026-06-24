@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{{ url_for('products') }}" style="color: var(--secondary); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-arrow-left"></i> Back to Product Catalog
+    </a>
+</div>
+
+<div class="glass-panel detail-grid" style="margin-bottom: 3rem;">
+    <!-- Left Column: Image -->
+    <div class="detail-img-box">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}">
+    </div>
+
+    <!-- Right Column: Specs Info -->
+    <div class="detail-info-box" style="display: flex; flex-direction: column;">
+        <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.05em;">
+            {{ product.category }}
+        </span>
+        <h1 style="margin-top: 0.5rem;">{{ product.name }}</h1>
+        
+        <div class="detail-rating-row" style="margin-top: 0.5rem;">
+            <span class="rating-badge" style="font-size: 1rem; padding: 0.25rem 0.75rem;">
+                <i class="fas fa-star"></i> {{ product.rating }}
+            </span>
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">Verified Customer Reviews</span>
+        </div>
+
+        <div class="detail-price">₹{{ "{:,.2f}".format(product.price) }}</div>
+        
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+            {{ product.description }}
+        </p>
+
+        <!-- Dynamic Spec scores visual indicators (Innovative) -->
+        <h3 style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-bottom: 1rem;">
+            AI Specifications Analysis
+        </h3>
+        
+        <div class="detail-spec-scores-list">
+            <!-- Performance -->
+            <div class="detail-score-row">
+                <span class="detail-spec-key" style="margin-bottom:0;">Performance</span>
+                <div class="feature-progress-bar" style="margin-bottom:0;">
+                    <div class="feature-progress-fill" style="width: {{ spec_scores.performance }}%; background: var(--primary-grad);"></div>
+                </div>
+                <span class="feature-score-num" style="text-align: right;">{{ spec_scores.performance }}/100</span>
+            </div>
+            <!-- Battery / Portability -->
+            <div class="detail-score-row">
+                <span class="detail-spec-key" style="margin-bottom:0;">Portability</span>
+                <div class="feature-progress-bar" style="margin-bottom:0;">
+                    <div class="feature-progress-fill" style="width: {{ spec_scores.portability }}%; background: var(--secondary-grad);"></div>
+                </div>
+                <span class="feature-score-num" style="text-align: right;">{{ spec_scores.portability }}/100</span>
+            </div>
+            <!-- Media -->
+            <div class="detail-score-row">
+                <span class="detail-spec-key" style="margin-bottom:0;">Media / Display</span>
+                <div class="feature-progress-bar" style="margin-bottom:0;">
+                    <div class="feature-progress-fill" style="width: {{ spec_scores.media }}%; background: var(--accent-grad);"></div>
+                </div>
+                <span class="feature-score-num" style="text-align: right;">{{ spec_scores.media }}/100</span>
+            </div>
+            <!-- Build Quality -->
+            <div class="detail-score-row">
+                <span class="detail-spec-key" style="margin-bottom:0;">Build Quality</span>
+                <div class="feature-progress-bar" style="margin-bottom:0;">
+                    <div class="feature-progress-fill" style="width: {{ spec_scores.build }}%; background: var(--primary-grad);"></div>
+                </div>
+                <span class="feature-score-num" style="text-align: right;">{{ spec_scores.build }}/100</span>
+            </div>
+        </div>
+
+        <!-- Wishlist toggle action in detail page -->
+        <div style="margin-top: auto; padding-top: 2rem; display: flex; gap: 1rem;">
+            <button class="wishlist-heart-btn {% if is_wishlisted %}active{% endif %}" data-id="{{ product.id }}" style="position: static; width: 50px; height: 50px; border-radius: var(--radius-sm);">
+                <i class="{% if is_wishlisted %}fas{% else %}far{% endif %} fa-heart" style="font-size: 1.25rem;"></i>
+            </button>
+            
+            <button class="btn-form" style="margin-top: 0; width: auto; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="showToast('Redirecting to partner retailer store mockup!', 'info')">
+                <i class="fas fa-shopping-cart"></i> Buy Now from Retailer
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel" style="margin-bottom: 3rem;">
+    <h2 style="margin-bottom: 1.5rem;">Technical Specifications</h2>
+    <div class="detail-specs-grid">
+        {% for key, val in product.specs_dict.items() %}
+            <div class="detail-spec-item">
+                <div class="detail-spec-key">{{ key }}</div>
+                <div class="detail-spec-val">{{ val }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Similar product recommendations -->
+{% if similar_products|length > 0 %}
+    <div>
+        <h2 style="margin-bottom: 1.5rem;">Similar Products You Might Like</h2>
+        <div class="product-card-grid">
+            {% for item in similar_products %}
+                <div class="product-card">
+                    <div class="card-img-wrapper">
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-meta-row">
+                            <span class="product-cat-tag">{{ item.category }}</span>
+                            <span class="rating-badge"><i class="fas fa-star"></i> {{ item.rating }}</span>
+                        </div>
+                        <h3 class="product-title" title="{{ item.name }}">{{ item.name }}</h3>
+                        <p class="product-desc">{{ item.description }}</p>
+                        <div class="product-price">₹{{ "{:,.2f}".format(item.price) }}</div>
+                        <div class="card-actions" style="grid-template-columns: 1fr;">
+                            <a href="{{ url_for('product_detail', product_id=item.id) }}" class="btn-card primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

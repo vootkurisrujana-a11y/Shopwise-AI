@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 700px; margin: 0 auto;">
+    <h2 style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        {{ action }} Product
+    </h2>
+
+    {% if error %}
+        <div class="error-message-box">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+    {% endif %}
+
+    <form action="" method="POST">
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name">Product Name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Dell Inspiron 14" value="{{ product.name if product else '' }}" required>
+        </div>
+
+        <!-- Category & Price / Rating row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="laptop" {% if product and product.category == 'laptop' %}selected{% endif %}>Laptop</option>
+                    <option value="phone" {% if product and product.category == 'phone' %}selected{% endif %}>Phone</option>
+                    <option value="headphone" {% if product and product.category == 'headphone' %}selected{% endif %}>Headphone</option>
+                    <option value="camera" {% if product and product.category == 'camera' %}selected{% endif %}>Camera</option>
+                    <option value="smartwatch" {% if product and product.category == 'smartwatch' %}selected{% endif %}>Smartwatch</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Price (₹)</label>
+                <input type="number" step="0.01" id="price" name="price" placeholder="e.g. 45000" value="{{ product.price if product else '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="rating">Rating (0 - 5)</label>
+                <input type="number" step="0.1" min="0" max="5" id="rating" name="rating" placeholder="e.g. 4.3" value="{{ product.rating if product else '' }}" required>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" placeholder="Write a short summary highlighting use cases..." required>{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <!-- Image URL -->
+        <div class="form-group">
+            <label for="image_url">Product Image URL</label>
+            <input type="url" id="image_url" name="image_url" placeholder="https://images.unsplash.com/photo-..." value="{{ product.image_url if product else '' }}">
+        </div>
+
+        <!-- Interactive Key-Value Spec generator (Innovative) -->
+        <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <label style="font-weight: 600; color: var(--text-secondary);">Technical Specifications</label>
+                <button type="button" class="btn-add-spec-field" id="btn-add-spec">
+                    <i class="fas fa-plus"></i> Add Spec Field
+                </button>
+            </div>
+            
+            <div id="spec-fields-container">
+                <!-- If editing, pre-fill keys and values -->
+                {% if product %}
+                    {% for key, val in product.specs_dict.items() %}
+                        <div class="spec-input-row" id="spec-row-{{ loop.index0 }}">
+                            <input type="text" name="spec_key_{{ loop.index0 }}" placeholder="Specification Name (e.g. RAM)" value="{{ key }}" required>
+                            <input type="text" name="spec_val_{{ loop.index0 }}" placeholder="Value (e.g. 16GB)" value="{{ val }}" required>
+                            <button type="button" class="btn-remove-spec" data-index="{{ loop.index0 }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Submit / Cancel -->
+        <div style="display: flex; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <a href="{{ url_for('admin') }}" class="btn-card outline" style="width: auto; padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: center;">Cancel</a>
+            <button type="submit" class="btn-form" style="margin-top:0;">Save Product Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

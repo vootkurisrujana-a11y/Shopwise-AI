@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-user-shield" style="color: var(--accent);"></i> Administrative Dashboard
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.85rem;">Manage the database inventory and monitor user search patterns.</p>
+</div>
+
+<!-- Admin Stats Cards Grid -->
+<div class="admin-stats-grid">
+    <div class="stat-card glass-panel">
+        <div class="stat-icon"><i class="fas fa-laptop-house"></i></div>
+        <div>
+            <div class="stat-num">{{ stats.products }}</div>
+            <div class="stat-label">Products Active</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel">
+        <div class="stat-icon" style="background: var(--secondary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="stat-num">{{ stats.users }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel">
+        <div class="stat-icon" style="background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><i class="fas fa-comments"></i></div>
+        <div>
+            <div class="stat-num">{{ stats.queries }}</div>
+            <div class="stat-label">AI Queries Logged</div>
+        </div>
+    </div>
+    
+    <div class="stat-card glass-panel">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div>
+            <div class="stat-num">{{ stats.activities }}</div>
+            <div class="stat-label">Audit Logs Saved</div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="admin-tabs">
+    <div class="admin-tab active" data-target="tab-catalog">Product Catalog CRUD</div>
+    <div class="admin-tab" data-target="tab-activity">User Activity Logs</div>
+</div>
+
+<!-- Catalog Tab Content -->
+<div class="admin-tab-content active" id="tab-catalog">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>Active Store Catalog</h3>
+        <a href="{{ url_for('admin_product_add') }}" class="btn-nav-action" style="padding: 0.5rem 1.25rem;">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+    </div>
+
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in products %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>
+                            <div style="width: 50px; height: 35px; border-radius: 4px; overflow: hidden; background: #090911;">
+                                <img src="{{ item.image_url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </td>
+                        <td style="font-weight: 600; color: white;">{{ item.name }}</td>
+                        <td style="text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: var(--secondary);">{{ item.category }}</td>
+                        <td>₹{{ "{:,.2f}".format(item.price) }}</td>
+                        <td>{{ item.rating }}★</td>
+                        <td>
+                            <div class="actions-cell">
+                                <a href="{{ url_for('admin_product_edit', product_id=item.id) }}" class="btn-action-small edit">Edit</a>
+                                <form action="{{ url_for('admin_product_delete', product_id=item.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                    <button type="submit" class="btn-action-small delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Activities Log Tab Content -->
+<div class="admin-tab-content" id="tab-activity">
+    <h3 style="margin-bottom: 1.5rem;">System User Audit Trail (Last 30 actions)</h3>
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action Class</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in activities %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap;">{{ log.timestamp }}</td>
+                        <td style="font-weight: 600;">{{ log.username or 'GUEST' }}</td>
+                        <td>
+                            <span class="badge" style="
+                                {% if log.action in ['LOGIN', 'REGISTER'] %}
+                                    background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success);
+                                {% elif log.action.startswith('ADMIN') %}
+                                    background: rgba(254, 1, 154, 0.15); color: var(--accent); border: 1px solid var(--accent);
+                                {% else %}
+                                    background: rgba(99, 102, 241, 0.15); color: var(--primary); border: 1px solid var(--primary);
+                                {% endif %}
+                            ">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ log.details }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
